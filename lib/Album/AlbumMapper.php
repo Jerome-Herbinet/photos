@@ -273,6 +273,32 @@ class AlbumMapper {
 		$query->executeStatement();
 	}
 
+	public function removeFileWithOwner(int $fileId, string $ownerId): void {
+		// Get concerned albums.
+		$query = $this->connection->getQueryBuilder();
+		$rows = $query->select('album_id')
+			->from("photos_albums_files")
+			->where($query->expr()->eq("owner_id", $query->createNamedParameter($ownerId)))
+			->andWhere($query->expr()->eq("file_id", $query->createNamedParameter($fileId, IQueryBuilder::PARAM_INT)));
+		$query->executeStatement();
+
+		// Remove any occurrence of fileId when owner is ownerId.
+		$query = $this->connection->getQueryBuilder();
+		$query->delete("photos_albums_files")
+			->where($query->expr()->eq("owner_id", $query->createNamedParameter($ownerId)))
+			->andWhere($query->expr()->eq("file_id", $query->createNamedParameter($fileId, IQueryBuilder::PARAM_INT)));
+		$query->executeStatement();
+
+		// Update last_added_photo for concerned albums.
+		foreach ($rows as $row) {
+			$query = $this->connection->getQueryBuilder();
+			$query->update("photos_albums")
+				->set('last_added_photo', $query->createNamedParameter($this->getLastAdded($row['album_id']), IQueryBuilder::PARAM_INT))
+				->where($query->expr()->eq('album_id', $query->createNamedParameter($row['album_id'], IQueryBuilder::PARAM_INT)));
+			$query->executeStatement();
+		}
+	}
+
 	private function getLastAdded(int $albumId): int {
 		$query = $this->connection->getQueryBuilder();
 		$query->select("file_id")
