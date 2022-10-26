@@ -40,7 +40,7 @@
             <collection>OCA\Photos\Sabre\PublicRootCollection</collection>
         </collections>
         <plugins>
-            <plugin>OCA\Photos\Sabre\Album\PropFindPlugin</plugin>
+            <plugin>OCA\Photos\Sabre\PropFindPlugin</plugin>
         </plugins>
     </sabre>
 </info>
