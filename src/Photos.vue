@@ -64,9 +64,12 @@
 					:title="t('photos', 'Tags')">
 					<Tag slot="icon" :size="20" />
 				</NcAppNavigationItem>
+				<NcAppNavigationItem :to="{name: 'locations'}" :title="t('photos', 'Locations')">
+					<MapMarker slot="icon" :size="20" />
+				</NcAppNavigationItem>
 				<NcAppNavigationItem v-if="showLocationMenuEntry"
 					:to="{name: 'maps'}"
-					:title="t('photos', 'Locations')">
+					:title="t('photos', 'Maps')">
 					<MapMarker slot="icon" :size="20" />
 				</NcAppNavigationItem>
 			</template>

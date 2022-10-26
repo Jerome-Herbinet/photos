@@ -26,6 +26,10 @@
 const url = Cypress.config('baseUrl').replace(/\/index.php\/?$/g, '')
 Cypress.env('baseUrl', url)
 
+Cypress.Commands.add('runOccCommand', command => {
+	cy.exec(`docker-compose --project-directory cypress exec -T 	--user www-data nextcloud php ./occ ${command}`)
+})
+
 Cypress.Commands.add('login', (user, password, route = '/apps/files') => {
 	Cypress.Cookies.defaults({
 		preserve: /^(oc|nc)/,
@@ -115,16 +119,17 @@ Cypress.Commands.add('uploadFile', (fixtureFileName, mimeType, path = '', upload
 				.join("/")
 
 			const url = `${Cypress.env('baseUrl')}/remote.php/webdav${encodedPath}/${encodeURIComponent(uploadedFileName)}`
-			return cy.request({
-				method: 'PUT',
-				url,
-				body: file,
-				encoding: 'binary',
-				headers: {
-					'Content-Type': mimeType,
-					requesttoken: window.OC.requestToken,
-				},
-			})
+			return cy
+				.request({
+					method: 'PUT',
+					url,
+					body: file,
+					encoding: 'binary',
+					headers: {
+						'Content-Type': mimeType,
+						requesttoken: window.OC.requestToken,
+					},
+				})
 		})
 })
 
@@ -244,4 +249,13 @@ Cypress.Commands.add('removeCollaborators', collaborators => {
 Cypress.Commands.add('removeSharedAlbums', () => {
 	cy.get('[aria-label="Open actions menu"]').click()
 	cy.contains("Delete album").click()
+})
+
+Cypress.Commands.add('navigateToCollection', (collectionType, collectionName) => {
+	cy.get('.app-navigation__list').contains(collectionType).click()
+	cy.get('ul.collections__list').contains(collectionName).click()
+})
+
+Cypress.Commands.add('navigateToLocation', locationName => {
+	cy.navigateToCollection('Locations', locationName)
 })
